@@ -1,0 +1,4 @@
+- hosts: localhost
+  remote_user: root
+  roles:
+    - { role: infn-datacloud.cvmfs-snapshotter, snapshotter: true }

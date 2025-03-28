@@ -1,0 +1,42 @@
+---
+# tasks file for cvmfs-snapshotter
+
+- name: Installing and/or configuring cvmfs with or w/o snapshotter
+  when: repository_name != ""
+  block:
+    - name: Skip installation of cvmfs if repository_name is empty or /cvmfs path exists
+      stat:
+        path: /cvmfs
+      register: p
+
+    - include_tasks: client_install.yml
+      name: Installing client
+      when: p.stat.isdir is not defined
+
+    - command: 'cvmfs_config stat -v {{ repository_name }}'
+      name: Pre-configuring client
+      register: cvmfs_stat
+      ignore_errors: yes
+
+    - include_tasks: client_config.yml
+      name: Configuring client
+      when: cvmfs_stat.rc != 0
+
+    - command: 'containerd --version'
+      name: Check if containerd is present before installing the snapshotter
+      ignore_errors: no
+      register: q
+      when: snapshotter|bool
+
+    - name: Show containerd version
+      debug:
+        msg: "Version: {{q.stdout}}"
+      when: snapshotter|bool
+
+    - include_tasks: snapshotter_install.yml
+      name: Installing snapshotter
+      when: snapshotter|bool
+
+    - include_tasks: snapshotter_config.yml
+      name: Configuring snapshotter
+      when: snapshotter|bool
