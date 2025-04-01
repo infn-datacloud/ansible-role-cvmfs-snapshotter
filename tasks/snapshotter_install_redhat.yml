@@ -24,7 +24,7 @@
 
 - name: Download and unarchive cvmfs-devel
   unarchive:
-    src: https://github.com/cvmfs/cvmfs/archive/refs/heads/devel.zip
+    src: "https://github.com/cvmfs/cvmfs/archive/refs/heads/{{snapshotter_version}}.zip"
     dest: "{{snapshotter_path}}"
     remote_src: yes
   ignore_errors: yes
